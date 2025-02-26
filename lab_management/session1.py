@@ -7,7 +7,6 @@ import string
 import sys
 import os
 
-
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -51,14 +50,14 @@ class LoginWindow(QtWidgets.QMainWindow):
                 auth_plugin="mysql_native_password"
             )
             cursor = connection.cursor()
-            cursor.execute("SELECT full_name, role FROM users WHERE login=%s AND password=%s", (login, password))
+            cursor.execute("SELECT id, full_name, role FROM users WHERE login=%s AND password=%s", (login, password))
             user = cursor.fetchone()
 
             if user:
-                full_name, role = user
+                user_id, full_name, role = user
                 QMessageBox.information(self, "Успешный вход", f"Добро пожаловать, {full_name} ({role})!")
 
-                # Сопоставление ролей из БД с изображениями
+                # Сопоставление ролей с фото
                 role_to_photo = {
                     "admin": "admin.png",
                     "lab_worker": "lab1.png",
@@ -66,24 +65,28 @@ class LoginWindow(QtWidgets.QMainWindow):
                     "accountant": "buh.png"
                 }
 
-                role_lower = role.lower().strip()  # Приводим роль к нижнему регистру и убираем пробелы
-                photo_file = role_to_photo.get(role_lower, "default.png")  # Если роль неизвестна, подставляем default.png
-
-                # Полный путь к изображению
+                role_lower = role.lower().strip()
+                photo_file = role_to_photo.get(role_lower, "default.png")
                 photo_path = os.path.join(os.getcwd(), photo_file)
-                print(f"Попытка загрузки фото: {photo_path}")  # Для отладки
 
-                # Проверка существования файла
                 if os.path.exists(photo_path):
                     pixmap = QPixmap(photo_path)
-                    if pixmap.isNull():
-                        print("Ошибка: QPixmap не загрузил изображение.")
-                    else:
-                        self.label_photo.setPixmap(pixmap)
-                        self.label_photo.setScaledContents(True)
-                        print("Фото успешно загружено!")
-                else:
-                    print(f"Ошибка: Файл {photo_path} не найден!")
+                    self.label_photo.setPixmap(pixmap)
+                    self.label_photo.setScaledContents(True)
+
+                # Открытие окна лабораторного работника
+                if role_lower == "lab_worker":
+                    import lab_worker_window 
+                    self.lab_worker_window = lab_worker_window.LabWorkerWindow(user_id, full_name)
+                    self.lab_worker_window.show()
+                    self.close()  # Закрываем окно логина
+
+                # Открытие окна исследователя
+                elif role_lower == "researcher":
+                    import researcher_window  
+                    self.researcher_window = researcher_window.LabWorkerWindow(user_id, full_name)
+                    self.researcher_window.show()
+                    self.close()
 
             else:
                 self.label_error.setText("Неверный логин или пароль!")
