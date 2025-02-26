@@ -92,54 +92,18 @@ INSERT INTO provided_services (order_id, service_id, performed_by, analyzer, per
 (2, 2, 2, 'Анализатор B2', '2025-02-25 11:00:00');
 
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `p1`(idps int)
+begin
+select services.name, services.cost, provided_services.analyzer from services
+join provided_services on services.id = provided_services.service_id
+where idps = provided_services.performed_by;
+end
 
+delimiter //
+create procedure p2(namel varchar(255), costl decimal(10,2), codel varchar(50), durationl int, deviationl float)
+begin
+insert into services(name, cost, code, duration, deviation)
+values(namel, costl, codel, durationl, deviationl) ;
+end //
+delimiter ;
 
-
-
-
-
-
-
-
-
-
-
-
-
--- Добавление таблицы истории входов
-CREATE TABLE IF NOT EXISTS login_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    login_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    success BOOLEAN NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- Обновление таблицы пользователей (добавление последнего входа)
-ALTER TABLE users ADD COLUMN last_login DATETIME DEFAULT NULL;
-
--- Добавление триггера для обновления времени последнего входа
-DELIMITER $$
-CREATE TRIGGER update_last_login
-AFTER INSERT ON login_history
-FOR EACH ROW
-BEGIN
-    IF NEW.success = TRUE THEN
-        UPDATE users SET last_login = NEW.login_time WHERE id = NEW.user_id;
-    END IF;
-END$$
-DELIMITER ;
-CREATE TABLE IF NOT EXISTS user_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    session_start DATETIME DEFAULT CURRENT_TIMESTAMP,
-    session_end DATETIME DEFAULT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
--- Добавление таблицы блокировок пользователей
-CREATE TABLE IF NOT EXISTS user_blocking (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    blocked_until DATETIME NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
