@@ -17,7 +17,7 @@ class LabWorkerWindow(QtWidgets.QMainWindow):
     def __init__(self, user_id, full_name):
         super().__init__()
         uic.loadUi("lab2.ui", self)
-
+        self.setWindowIcon(QIcon("logo.png"))
         self.user_id = user_id
         self.full_name = full_name
 
