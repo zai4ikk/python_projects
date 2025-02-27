@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
     insurance_number VARCHAR(50) NOT NULL,
     insurance_type VARCHAR(50) NOT NULL,
     insurance_company VARCHAR(100) NOT NULL,
-    role ENUM('lab_worker', 'researcher', 'accountant', 'admin') NOT NULL
+    role ENUM('lab_worker', 'researcher', 'accountant', 'admin') NOT NULL,
+    last_login datetime
 );
 
 -- Заполнение таблицы пользователей
@@ -107,3 +108,4 @@ values(namel, costl, codel, durationl, deviationl) ;
 end //
 delimiter ;
 
+create table login_history(id int primary key auto_increment, user_id int, login_time datetime, success tinyint(1), foreign key (user_id) references users (id));
