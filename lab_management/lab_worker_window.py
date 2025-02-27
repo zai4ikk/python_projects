@@ -1,6 +1,6 @@
 from PyQt6 import QtWidgets, uic
 import mysql.connector
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtWidgets import QMessageBox
 import os
 
