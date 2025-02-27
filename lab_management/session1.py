@@ -15,7 +15,7 @@ class LoginWindow(QtWidgets.QMainWindow):
         self.btn_login.clicked.connect(self.authenticate)
         self.checkBox_show_password.stateChanged.connect(self.toggle_password)
         self.btn_refresh_captcha.clicked.connect(self.generate_captcha)
-        self.setWindowIcon(QIcon("logo.jpg"))
+        self.setWindowIcon(QIcon("logo.png"))
         self.generate_captcha()
 
     def generate_captcha(self):
