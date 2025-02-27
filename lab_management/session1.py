@@ -1,11 +1,14 @@
 from PyQt6 import uic, QtWidgets
 from PyQt6.QtWidgets import QMessageBox
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIcon
 import mysql.connector
 import random
 import string
 import sys
 import os
+from admin_window import AdminWindow
+
+
 
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -55,6 +58,10 @@ class LoginWindow(QtWidgets.QMainWindow):
 
             if user:
                 user_id, full_name, role = user
+                cursor.execute("UPDATE users SET last_login = NOW() WHERE id = %s", (user_id,))
+                cursor.execute("INSERT INTO login_history (user_id, login_time, success) VALUES (%s, NOW(), 1)", (user_id,))
+                connection.commit()
+
                 QMessageBox.information(self, "Успешный вход", f"Добро пожаловать, {full_name} ({role})!")
 
                 # Сопоставление ролей с фото
@@ -76,19 +83,29 @@ class LoginWindow(QtWidgets.QMainWindow):
 
                 # Открытие окна лабораторного работника
                 if role_lower == "lab_worker":
-                    import lab_worker_window 
+                    import lab_worker_window
                     self.lab_worker_window = lab_worker_window.LabWorkerWindow(user_id, full_name)
                     self.lab_worker_window.show()
                     self.close()  # Закрываем окно логина
 
                 # Открытие окна исследователя
                 elif role_lower == "researcher":
-                    import researcher_window  
-                    self.researcher_window = researcher_window.LabWorkerWindow(user_id, full_name)
+                    import researcher_window
+                    self.researcher_window = researcher_window.ResearcherWindow(user_id, full_name)  # Исправлено
                     self.researcher_window.show()
                     self.close()
 
+                # Открытие окна администратора
+                elif role_lower == "admin":
+                    self.admin_window = AdminWindow(user_id, full_name)
+                    self.admin_window.show()
+                    self.close()
+
+
+
             else:
+                cursor.execute("INSERT INTO login_history (user_id, login_time, success) VALUES (NULL, NOW(), 0)")
+                connection.commit()
                 self.label_error.setText("Неверный логин или пароль!")
 
         except mysql.connector.Error as err:
