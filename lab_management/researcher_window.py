@@ -1,6 +1,6 @@
 from PyQt6 import uic, QtWidgets
 from PyQt6.QtWidgets import QMessageBox, QTableWidgetItem
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIcon
 import mysql.connector
 import pandas as pd
 import os
@@ -95,6 +95,6 @@ class LabWorkerWindow(QtWidgets.QMainWindow):
         if self.connection:
             self.connection.close()
         self.close()
-        from session1 import LoginWindow  # ✅ ОТЛОЖЕННЫЙ ИМПОРТ
+        from session1 import LoginWindow
         self.login_window = LoginWindow()
         self.login_window.show()
